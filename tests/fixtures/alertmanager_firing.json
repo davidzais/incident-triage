@@ -1,0 +1,39 @@
+{
+  "version": "4",
+  "groupKey": "{}:{alertname=\"HighErrorRate\"}",
+  "truncatedAlerts": 0,
+  "status": "firing",
+  "receiver": "incident-triage",
+  "groupLabels": {
+    "alertname": "HighErrorRate"
+  },
+  "commonLabels": {
+    "alertname": "HighErrorRate",
+    "service": "checkout",
+    "severity": "critical"
+  },
+  "commonAnnotations": {
+    "summary": "Error rate above threshold on checkout"
+  },
+  "externalURL": "http://alertmanager.example.com:9093",
+  "alerts": [
+    {
+      "status": "firing",
+      "labels": {
+        "alertname": "HighErrorRate",
+        "service": "checkout",
+        "severity": "critical",
+        "namespace": "payments",
+        "instance": "checkout-7d9f8b-abc12:8080"
+      },
+      "annotations": {
+        "summary": "Error rate above 5% on checkout",
+        "description": "The checkout service is returning HTTP 5xx for 7.3% of requests over the last 5m (threshold 5%)."
+      },
+      "startsAt": "2026-06-29T17:42:10.123Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://prometheus.example.com/graph?g0.expr=job%3Ahttp_errors%3Arate5m+%3E+0.05",
+      "fingerprint": "a1b2c3d4e5f60718"
+    }
+  ]
+}
