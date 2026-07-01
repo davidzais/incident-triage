@@ -30,13 +30,17 @@ class Alert(ConfigBase):
 class Payload(ConfigBase):
     alerts: list[Alert]
 
-    def to_incident(self) -> Incident:
-        alert = self.alerts[0]
-        incident: Incident = Incident(
-            fingerprint = alert.fingerprint,
-            severity = Severity.from_raw(alert.labels.severity),
-            service = alert.labels.service,
-            title = alert.annotations.summary
-        )
+    
+    def to_incidents(self) -> list[Incident]:
+        incidents: list[Incident] = []
+        alerts = self.alerts
+        for alert in alerts:
+            incident: Incident = Incident(
+                fingerprint = alert.fingerprint,
+                severity = Severity.from_raw(alert.labels.severity),
+                service = alert.labels.service,
+                title = alert.annotations.summary
+            )
+            incidents.append(incident)
 
-        return incident
+        return incidents
