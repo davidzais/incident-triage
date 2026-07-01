@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 from datetime import datetime
-from models.incident import Incident
+from models.incident import Incident, Severity
 
 
 class ConfigBase(BaseModel):
@@ -34,7 +34,7 @@ class Payload(ConfigBase):
         alert = self.alerts[0]
         incident: Incident = Incident(
             fingerprint = alert.fingerprint,
-            severity = alert.labels.severity,
+            severity = Severity.from_raw(alert.labels.severity),
             service = alert.labels.service,
             title = alert.annotations.summary
         )
