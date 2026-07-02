@@ -13,3 +13,6 @@ wheels/
 
 # Editor / IDE config (machine-specific)
 .vscode/
+
+# AI-assistant working notes (local only)
+TODOS.md
