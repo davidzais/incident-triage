@@ -10,3 +10,6 @@ wheels/
 .venv
 
 .env
+
+# Editor / IDE config (machine-specific)
+.vscode/
