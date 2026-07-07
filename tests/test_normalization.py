@@ -1,5 +1,5 @@
 from models.providers.alert_manager import Payload
-from models.incident import Severity, Incident
+from models.incident import AlertState, Severity, Incident
 import pytest
 
 def test_to_incident(sample_message):
@@ -38,11 +38,13 @@ def test_multi_incidents(sample_multi_message):
     assert incident.severity  == Severity.CRITICAL
     assert incident.service  == "checkout"
     assert incident.title  == "Error rate above 5% on checkout"
+    assert incident.status  == AlertState.FIRING
 
     incident2: Incident = incidents[1]
     assert incident2.fingerprint == "f6e5d4c3b2a10718"
     assert incident2.severity  == Severity.WARNING
     assert incident2.service  == "inventory"
     assert incident2.title  == "Error rate above 8% on orders"
+    assert incident2.status  == AlertState.FIRING
 
     assert Payload(alerts=[]).to_incidents() == []

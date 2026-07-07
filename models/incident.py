@@ -20,9 +20,13 @@ class Severity(StrEnum):
     def _missing_(cls, value) -> "Severity":
         return cls.UNKNOWN
     
+class AlertState(StrEnum):
+    FIRING = "firing"
+    RESOLVED = "resolved"   
 
 class Incident(BaseModel):
     severity: Severity
     service: str
     fingerprint: str
     title: str
+    status: AlertState

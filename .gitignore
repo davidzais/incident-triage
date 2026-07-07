@@ -10,3 +10,12 @@ wheels/
 .venv
 
 .env
+
+# Editor / IDE config (machine-specific)
+.vscode/
+
+# AI-assistant working notes (local only)
+TODOS.md
+
+# Local README draft (not for check-in)
+README.draft.md

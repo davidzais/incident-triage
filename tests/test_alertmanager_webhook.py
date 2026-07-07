@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 from models.providers.alert_manager import Payload
-from models.incident import Incident, Severity
+from models.incident import AlertState, Incident, Severity
 from app.main import api
 
 
@@ -17,4 +17,5 @@ def test_webook(sample_message):
     assert incident["severity"]  == Severity.CRITICAL
     assert incident["service"]  == "checkout"
     assert incident["title"]  == "Error rate above 5% on checkout"
+    assert incident["status"]  == AlertState.FIRING
     
