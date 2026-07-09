@@ -1,7 +1,8 @@
 # incident_triage
 
 A FastAPI service that receives **Alertmanager webhooks**, normalizes each alert into an
-`Incident`, and (eventually) persists/deduplicates them in Postgres for triage.
+`Incident`, deduplicates and prioritizes it, and persists it in Postgres — then serves the
+open incidents back as a **priority-ranked worklist**.
 
 ---
 
@@ -11,10 +12,12 @@ Alertmanager POSTs a batch of alerts to this service. The service:
 
 1. Validates the webhook body against a Pydantic model (`Payload`).
 2. Normalizes each alert into a domain `Incident` (severity, service, title, fingerprint).
-3. Returns `202 Accepted` with the parsed incidents.
+3. Assigns a triage **priority** (P1–P4) from the alert's severity and the service's tier.
+4. Persists and deduplicates on `fingerprint` in Postgres (repeat alerts bump `times_seen` / `last_seen`).
+5. Returns `202 Accepted`.
 
-Persistence and deduplication (via `fingerprint`) happen in the write to the Postgres Incidents table
-in the incident_triage database
+Operators then read **`GET /incidents`** to get the open incidents back **ranked by priority** —
+a triaged worklist instead of raw alert noise.
 
 ---
 
@@ -59,6 +62,16 @@ Alertmanager ── POST /webhooks/alertmanager/──▶ FastAPI (app/main.py)
 
 ---
 
+## Prioritization
+
+Each incident gets a `Priority` (P1–P4) from a small, explicit rules **matrix** keyed on
+`(severity, service tier)`. Service tiers are a config
+lookup (`SERVICE_TIER`, default tier 3), so the matrix stays about *severity × how critical the
+service is*. `GET /incidents` returns the open incidents ordered **P1 → P4** (freshest first
+within a priority).
+
+---
+
 ## Setup
 
 Requires Python 3.12 and [uv](https://docs.astral.sh/uv/). Run everything **from this directory** (`incident_triage/`) — it's the import root.
@@ -89,7 +102,8 @@ uv run python db/database.py
 uv run uvicorn app.main:api --reload
 ```
 
-Then POST an Alertmanager-shaped payload (see `tests/fixtures/`) to `http://localhost:8000/webhooks/alertmanager/`.
+Then POST an Alertmanager-shaped payload (see `tests/fixtures/`) to `http://localhost:8000/webhooks/alertmanager/`,
+and read the ranked worklist from `GET http://localhost:8000/incidents`.
 Interactive docs at `http://localhost:8000/docs`.
 
 ## Test
