@@ -1,6 +1,6 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import func, DateTime
-from models.incident import AlertState
+from models.incident import AlertState, Priority
 from enum import StrEnum
 from datetime import datetime
 
@@ -26,3 +26,4 @@ class IncidentORM(Base):
     last_seen: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     times_seen: Mapped[int] = mapped_column(default=1)
     progress_status: Mapped[str] = mapped_column(default=Status.OPEN)
+    priority: Mapped[str] = mapped_column(default=Priority.P3)  # default priority if not set

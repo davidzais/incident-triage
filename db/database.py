@@ -1,4 +1,7 @@
 import sys
+from typing import Any, Generator
+
+from sqlalchemy.ext.asyncio.session import AsyncSession
 from db.tables import Base
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from functools import cache
@@ -23,6 +26,10 @@ async def init_db():
         #await conn.run_sync(Base.metadata.drop_all)
         # metadata.create_all does not have a native async implementation
         await conn.run_sync(Base.metadata.create_all)
+
+async def get_session() -> Generator[AsyncSession, Any, None]:
+    async with get_session_maker()() as s:
+        yield s
 
 @cache     
 def get_session_maker():   
