@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 from datetime import datetime
-from models.incident import AlertState, Incident, Severity
+from models.incident import AlertState, Incident, Severity, prioritize
 
 
 class ConfigBase(BaseModel):
@@ -26,6 +26,7 @@ class Alert(ConfigBase):
     ends_at: datetime
     generator_url: str = Field(validation_alias="generatorURL")
     fingerprint: str
+    
 
 class Payload(ConfigBase):
     alerts: list[Alert]
@@ -35,12 +36,14 @@ class Payload(ConfigBase):
         incidents: list[Incident] = []
         alerts = self.alerts
         for alert in alerts:
+            sev = Severity.from_raw(alert.labels.severity)
             incident: Incident = Incident(
                 fingerprint = alert.fingerprint,
-                severity = Severity.from_raw(alert.labels.severity),
+                severity = sev,
                 service = alert.labels.service,
                 title = alert.annotations.summary,
-                status = alert.status
+                status = alert.status,
+                priority = prioritize(sev, alert.labels.service)
             )
             incidents.append(incident)
 

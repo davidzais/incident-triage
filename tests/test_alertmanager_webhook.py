@@ -1,5 +1,4 @@
 from fastapi.testclient import TestClient
-from models.providers.alert_manager import Payload
 from models.incident import AlertState, Incident, Severity
 from app.main import api
 

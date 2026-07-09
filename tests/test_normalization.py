@@ -1,5 +1,5 @@
 from models.providers.alert_manager import Payload
-from models.incident import AlertState, Severity, Incident
+from models.incident import AlertState, Severity, Incident, prioritize, Priority
 import pytest
 
 def test_to_incident(sample_message):
@@ -11,6 +11,7 @@ def test_to_incident(sample_message):
     assert incident.severity  == Severity.CRITICAL
     assert incident.service  == "checkout"
     assert incident.title  == "Error rate above 5% on checkout"
+    assert incident.priority == Priority.P1
 
 @pytest.mark.parametrize("value, expected", [
     ("critical", Severity.CRITICAL),
@@ -39,6 +40,7 @@ def test_multi_incidents(sample_multi_message):
     assert incident.service  == "checkout"
     assert incident.title  == "Error rate above 5% on checkout"
     assert incident.status  == AlertState.FIRING
+    assert incident.priority == Priority.P1
 
     incident2: Incident = incidents[1]
     assert incident2.fingerprint == "f6e5d4c3b2a10718"
@@ -48,3 +50,17 @@ def test_multi_incidents(sample_multi_message):
     assert incident2.status  == AlertState.FIRING
 
     assert Payload(alerts=[]).to_incidents() == []
+
+@pytest.mark.parametrize(argnames="severity, service, expected", argvalues=[
+    (Severity.CRITICAL, "checkout", Priority.P1),
+    (Severity.CRITICAL, "inventory", Priority.P1),
+    (Severity.WARNING, "returns", Priority.P3),
+    (Severity.INFO, "orders", Priority.P4),
+    (Severity.UNKNOWN, "checkout", Priority.P3),
+    (Severity.UNKNOWN, "unknown_service", Priority.P3),
+    (Severity.CRITICAL, "unknown_service", Priority.P2)
+])
+def test_prioritize(severity, service, expected):
+    # Test known severity and service
+    assert prioritize(severity=severity, service=service) == expected
+    
